@@ -1,11 +1,16 @@
 package com.example.rambabu.codebrew;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,15 +25,25 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
+    private ViewPagerAdapter adapter;
     private RecyclerView rv_press;
     private Adapter Adapter;
     private List<Model> Models;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rv_press = (RecyclerView) findViewById(R.id.rv_press);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setupViewPager(viewPager);
+
+        tabLayout.setupWithViewPager(viewPager);
         RetrofitHandler.getInstance().getFriends("$2y$10$rJseWBlMdz4aoEF7YPcDHO71Rxef66uoTM17XT9nnnlbUCP87LF9a").enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -82,4 +97,17 @@ public class MainActivity extends AppCompatActivity {
             Adapter.notifyAdapter(Models);
         }
     }
+    public boolean isNetworkAvailable() {
+        ConnectivityManager cn = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo nf = cn.getActiveNetworkInfo();
+        return nf != null && nf.isConnected();
+    }
+    private void setupViewPager(ViewPager viewPager) {
+         adapter= new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new LinksFragment(), "HOME");
+
+        viewPager.setAdapter(adapter);
+
+    }
+
 }
